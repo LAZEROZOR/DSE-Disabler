@@ -2,11 +2,8 @@
 
 ULONG EnableDSECode = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x696, METHOD_BUFFERED, FILE_SPECIAL_ACCESS);
 ULONG DisableDSECode = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x697, METHOD_BUFFERED, FILE_SPECIAL_ACCESS);
-ULONG UnloadCode = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x698, METHOD_BUFFERED, FILE_SPECIAL_ACCESS);
 
 NTKERNELAPI NTSTATUS IoCreateDriver(PUNICODE_STRING DriverName, PDRIVER_INITIALIZE InitializationFunction);
-
-NTKERNELAPI VOID IoDeleteDriver(PDRIVER_OBJECT DriverObject);
 
 struct Request
 {
@@ -14,7 +11,6 @@ struct Request
 };
 typedef struct Request Request;
 
-PDRIVER_OBJECT driverObjectGlobal;
 
 VOID DisableDSE(PVOID addr)
 {
@@ -48,20 +44,6 @@ VOID EnableDSE(PVOID addr)
 
 
     InterlockedExchange((volatile LONG*)addr, 6);
-}
-
-VOID DriverUnload()
-{
-    UNICODE_STRING sym;
-    RtlInitUnicodeString(&sym, L"\\DosDevices\\DSEdriver");
-    IoDeleteSymbolicLink(&sym);
-
-    if (driverObjectGlobal->DeviceObject) 
-    {
-        IoDeleteDevice(driverObjectGlobal->DeviceObject);
-    }
-
-    IoDeleteDriver(driverObjectGlobal);
 }
 
 NTSTATUS createCloseCom(PDEVICE_OBJECT device_object, PIRP irp)
@@ -125,13 +107,6 @@ NTSTATUS device_control(PDEVICE_OBJECT device_object, PIRP irp)
 		status = STATUS_SUCCESS;
     }
 
-    if (control_code == UnloadCode)
-    {
-        DriverUnload();
-        status = STATUS_SUCCESS;
-	}
-
-
 	irp->IoStatus.Status = status;
 	irp->IoStatus.Information = sizeof(Request);
 
@@ -144,20 +119,18 @@ NTSTATUS DriverMain(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 {
     UNREFERENCED_PARAMETER(RegistryPath);
 
-	driverObjectGlobal = DriverObject;
-
     UNICODE_STRING device_name;
     RtlInitUnicodeString(&device_name, L"\\Device\\DSEdriver");
     PDEVICE_OBJECT device_object;
-    IoCreateDevice(driverObjectGlobal, 0, &device_name, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &device_object);
+    IoCreateDevice(DriverObject, 0, &device_name, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &device_object);
     UNICODE_STRING symbolic_link;
     RtlInitUnicodeString(&symbolic_link, L"\\DosDevices\\DSEdriver");
     IoCreateSymbolicLink(&symbolic_link, &device_name);
 
     SetFlag(device_object->Flags, DO_BUFFERED_IO);
-    driverObjectGlobal->MajorFunction[IRP_MJ_CREATE] = createCloseCom;
-    driverObjectGlobal->MajorFunction[IRP_MJ_CLOSE] = createCloseCom;
-    driverObjectGlobal->MajorFunction[IRP_MJ_DEVICE_CONTROL] = device_control;
+    DriverObject->MajorFunction[IRP_MJ_CREATE] = createCloseCom;
+    DriverObject->MajorFunction[IRP_MJ_CLOSE] = createCloseCom;
+    DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = device_control;
 
     ClearFlag(device_object->Flags, DO_DEVICE_INITIALIZING);
 
