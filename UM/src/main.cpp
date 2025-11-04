@@ -6,7 +6,6 @@ uintptr_t offset = 0x4e004;
 
 ULONG EnableDSECode = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x696, METHOD_BUFFERED, FILE_SPECIAL_ACCESS);
 ULONG DisableDSECode = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x697, METHOD_BUFFERED, FILE_SPECIAL_ACCESS);
-ULONG UnloadCode = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x698, METHOD_BUFFERED, FILE_SPECIAL_ACCESS);
 
 struct Request 
 {
@@ -20,7 +19,7 @@ bool initDriver()
 	driverHandle = CreateFileA("\\\\.\\DSEdriver", GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 	if (driverHandle == INVALID_HANDLE_VALUE) {
-		std::cout << "[!] Failed to open handle to driver: " << GetLastError() << std::endl;
+		std::cout << "[-] Failed to open handle to driver: " << GetLastError() << std::endl;
 		return false;
 	}
 	std::cout << "[+] Driver handle opened successfully.\n";
@@ -56,7 +55,6 @@ int main()
 		std::cout << "=============================== \n";
 		std::cout << "[1] Disable DSE\n";
 		std::cout << "[2] Enable DSE\n";
-		std::cout << "[3] Unload driver\n";
 
 		std::string line;
 		if (!std::getline(std::cin, line)) break;
@@ -78,13 +76,6 @@ int main()
 			r.address = targetAddress;
 			DeviceIoControl(driverHandle, EnableDSECode, &r, sizeof(r), nullptr, 0, nullptr, nullptr);
 			std::cout << "[+] DSE Enabled." << std::endl;
-		}
-		if (c == '3')
-		{
-			Request r;
-			DeviceIoControl(driverHandle, UnloadCode, &r, sizeof(r), nullptr, 0, nullptr, nullptr);
-			std::cout << "[+] Driver unloaded" << std::endl;
-			break;
 		}
 	}
 
