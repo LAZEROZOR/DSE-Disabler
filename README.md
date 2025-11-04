@@ -2,7 +2,7 @@
 
 DSE-Disabler is a **proof-of-concept (PoC)** Windows utility demonstrating, how Driver Signature Enforcement (DSE) can be temporarily disabled.
 
-> This repository is explicitly a PoC for security research. It is intended for experienced security professionals and kernel engineers.
+This repository is explicitly a PoC for security research. It is intended for experienced security professionals and kernel engineers.
 
 ---
 
