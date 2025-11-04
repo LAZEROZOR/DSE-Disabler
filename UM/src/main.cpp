@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-uintptr_t offset = 0x4e004;
+uintptr_t offset = 0x4e004; //CiOptions FOR WINDOWS 25H2. This offset need to be changed for other versions of Windows.
 
 ULONG EnableDSECode = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x696, METHOD_BUFFERED, FILE_SPECIAL_ACCESS);
 ULONG DisableDSECode = CTL_CODE(FILE_DEVICE_UNKNOWN, 0x697, METHOD_BUFFERED, FILE_SPECIAL_ACCESS);
