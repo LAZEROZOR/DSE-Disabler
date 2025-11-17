@@ -8,13 +8,13 @@ This repository is explicitly a PoC for security research. It is intended for ex
 
 ## Purpose / Scope
 
-This project is **not** a production tool. Its purpose is to illustrate, at a high level, how DSE can be bypassed during legitimate research activities (PoC development, fuzzing, driver prototyping, vulnerability validation).
+This project is **not** a production tool. Its purpose is to illustrate, at a high level, how DSE can be bypassed during legitimate research activities.
 
 ---
 
 ## Features
 
-- Demonstration: Enable / Disable DSE (PoC)
+- Enable / Disable DSE
 
 ---
 
@@ -22,8 +22,8 @@ This project is **not** a production tool. Its purpose is to illustrate, at a hi
 
 Requirements:
 
-- Visual Studio 2019 / 2022
-- Desktop Development with C++ workload installed
+- Visual Studio 2022
+- WDK
 
 Note: The produced kernel driver in this repository is intended to be loaded using a manual-mapping approach (manual mapper). Example : https://github.com/TheCruZ/kdmapper
 
